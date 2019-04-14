@@ -25,4 +25,9 @@ run clustering/clustering.py and the cluster centers and the cluster labels are 
 run models/questions_embeddings_cosine.py and it generates ques_recommendations.dat which has information of each question 
 and 10 most similar questions to the given question.
 
+## Evaluation:
+1. Read PostLinks.xml and club related question ids and answer ids for a particular question.
+2. Evaluate our model by taking weighted average of the number of questions from relatedID list (from above step) that's present in the list of recommendations and the number of questions from relatedID list that's present in the top half of the list of recommendations
+
+
 
