@@ -11,20 +11,20 @@ if __name__ == "__main__":
     root = Tk()
 
     # set the background colour of GUI window
-    root.configure(background='light green')
+    root.configure(background='light gray')
 
     # set the title of GUI window
     root.title("registration form")
 
     # set the configuration of GUI window
     root.geometry("500x300")
-    heading = Label(root, text="Form", bg="light green")
+    heading = Label(root, text="Form", bg="light gray")
 
     # create a Name label
-    name = Label(root, text="Enter Question Body", bg="light green")
+    name = Label(root, text="Enter Question Body", bg="light gray")
 
     # create a Course label
-    course = Label(root, text="Enter Question Title", bg="light green")
+    course = Label(root, text="Enter Question Title", bg="light gray")
     heading.grid(row=0, column=1)
     name.grid(row=1, column=0)
     course.grid(row=2, column=0)
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     course_field.grid(row=2, column=1, ipadx="100")
 
     submit = Button(root, text="Recommend", fg="Black",
-                    bg="Red")
+                    bg="Gray")
     submit.grid(row=8, column=1)
 
     root.mainloop()
