@@ -9,10 +9,11 @@ run pre-processing/data_preprocessing.py and csv files will be generated in csv_
 
 ## Create embeddings:
 The question body, title and tag information is taken from the csv files and word embeddings are created for each of them
-The final word embedding for a question is formed by adding up the body,title and tag embeddings
-run embeddings/create_embeddings.py and embeddings will be created in embeddings folder
+run embeddings/create_embeddings.py and the question_title, question_body, question_tag, answer_body embeddings are created in embeddings folder.
 
 ## Clustering:
+For feature vector representation, combinations of only title, title+body and title+body+tags were experimented upon.
+The final word embedding for a question is formed based on the combination we wish to use.
 Clustering is applied on all the questions and the technique used is Affinity Propagation
 run clustering/clustering.py and the cluster centers and the cluster labels are stored in clustering directory
 
@@ -22,8 +23,14 @@ run clustering/clustering.py and the cluster centers and the cluster labels are 
 3. Assemble all the questions from the nearby clusters and the given cluster
 4. Compute cosine similarity and rank the questions according to their similarity to the given question
 
+Additionally, answer information was also used to generate question recommendations. The hypothesis used was: If two answers are similar, then their questions are also similar. The first 5 recommendations from question and answer information were interleaved to form the final ranked list
+
 run models/questions_embeddings_cosine.py and it generates ques_recommendations.dat which has information of each question 
 and 10 most similar questions to the given question.
+
+## Hybrid Recommendations:
+To capture the rare terms as well as the semantic relations, combination of tf-idf and word embeddings were used. 
+run models/hybrid_recommendations.py to generate hybrid recommendations for a given question
 
 ## Evaluation:
 1. Read PostLinks.xml and club related question ids and answer ids for a particular question.
