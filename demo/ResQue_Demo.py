@@ -8,6 +8,7 @@ import pickle
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn import preprocessing
 
 root = Tk()
 
@@ -43,29 +44,46 @@ def words_to_vec(words):
     vec /= len(words)
     return vec
 
+def recommend_temp():
+    hybrid_recommendations = pickle.load(open("../models/ds_que_ans_withtags_recommendations.dat","rb"))
+    ques_id = 20
+    input_df = pd.read_csv("../csv_files/posts_body.csv")
+    recommended_questions = []
+    for tup in hybrid_recommendations[ques_id]:
+        recommended_questions.append(input_df.loc[input_df['Id'] == tup[0], 'Title'].iloc[0])
+    recommended.delete(0.0, tkinter.END)
+    for i in range (0,10):
+        recommended.insert(END, recommended_questions[i] + '\n')
+        recommended.update()
+    return recommended_questions
+
 # Driver code
 def recommend():
     recommended_questions = []
     print("in recommend()")
     
-    title_embedding = words_to_vec((ques_title.get()).split())
-    body_embedding = words_to_vec((ques_body.get()).split())
+    title_embedding = words_to_vec((ques_title.get('1.0', END)).split())
+    title_embedding = preprocessing.normalize([title_embedding],norm='l2')[0]
+    body_embedding = words_to_vec((ques_body.get('1.0', END)).split())
+    body_embedding = preprocessing.normalize([body_embedding],norm='l2')[0]
+    tag_embedding = words_to_vec((ques_tag.get('1.0', END)).split())
+    tag_embedding = preprocessing.normalize([tag_embedding],norm='l2')[0]
 
-    ques_embedding = title_embedding + body_embedding
+    ques_embedding = title_embedding + body_embedding + tag_embedding
     #Step 2: Find the cluster to which this question belongs to
     #based on the distance of question embeddings from the cluster centers
 
-    cluster_centers = pickle.load(open("../clustering/bio_cluster_centers.dat","rb"))
+    cluster_centers = pickle.load(open("../clustering/n_ds_withtags_cluster_centers.dat","rb"))
     
 
     distances = euclidean_distances(cluster_centers,[ques_embedding])
     given_ques_cluster = distances.argsort(axis=0)[0][0]
 
     
-    nearby_centers_dict = pickle.load(open("../models/bio_nearby_centers_dict.dat","rb"))
-    questions_in_a_cluster_dict = pickle.load(open("../models/bio_questions_in_a_cluster_dict.dat","rb"))
-    bio_ques_dict = pickle.load(open("../clustering/bio_ques_dict.dat","rb"))
-    input_df = pd.read_csv("../csv_files/bio_questions.csv")
+    nearby_centers_dict = pickle.load(open("../models/ds_nearby_centers_dict.dat","rb"))
+    questions_in_a_cluster_dict = pickle.load(open("../models/n_ds_withtags_questions_in_a_cluster_dict.dat","rb"))
+    bio_ques_dict = pickle.load(open("../clustering/n_ds_withtags_ques_dict.dat","rb"))
+    input_df = pd.read_csv("../csv_files/posts_body.csv")
 
     total_questions = []
     
@@ -84,7 +102,7 @@ def recommend():
         for tup in cosine_scores:
             #get the ques_id and its title from the dataframe
             #print(tup[0])
-            recommended_questions.append(input_df.loc[input_df['Id'] == tup[0]]['Title'])
+            recommended_questions.append(input_df.loc[input_df['Id'] == tup[0], 'Title'].iloc[0])
     recommended.delete(0.0, tkinter.END)
     for i in range (0,10):
         recommended.insert(END, recommended_questions[i] + '\n')
@@ -93,10 +111,11 @@ def recommend():
     return recommended_questions[0:10]
 
 
-ques_body = Entry(root)
-ques_title = Entry(root)
+ques_body = Text(root, height = 5, width = 20)
+ques_title = Text(root, height = 5, width = 20)
+ques_tag = Text(root, height = 5, width = 20)
 
-recommended = Text(root, height = 20, width = 20)
+recommended = Text(root, height = 15, width = 20)
 
 def clear():
     # clear the content of text entry box
@@ -113,19 +132,30 @@ if __name__ == "__main__":
 
     # create a Course label
     course = Label(root, text="Enter Question Title", bg="light gray")
+    
+    tag = Label(root, text="Enter Question Tags", bg="light gray")
 
     rec_list = Label(root, text ="Recommended List :", bg = "light gray")
+    dummy = Label(root, text =" ", bg = "light gray")
+    dummy1 = Label(root, text =" ", bg = "light gray")
+    dummy2 = Label(root, text=" ", bg = "light gray")
     heading.grid(row=0, column=1)
-    name.grid(row=1, column=0)
-    course.grid(row=3, column=0)
-    rec_list.grid(row=5, column=0)
+    
+    course.grid(row=1, column=0)
+    dummy.grid(row=2,column=0)
+    name.grid(row=3, column=0)
+    dummy1.grid(row=4,column=0)
+    tag.grid(row=5,column=0)
+    dummy2.grid(row=6, column=0)
+    rec_list.grid(row=7, column=0)
     
 
     ques_body.grid(row=1, column=1, ipadx="100")
     ques_title.grid(row=3, column=1, ipadx="100")
-    recommended.grid(row=5, column=1, ipadx="200")
+    ques_tag.grid(row=5, column=1, ipadx="100")
+    recommended.grid(row=7, column=1, ipadx="200")
 
     submit = Button(root, text="Recommend", fg="Black", bg="Gray",command=recommend)
-    submit.grid(row=7, column=1)
+    submit.grid(row=9, column=1)
     #recommend = recommended_questions
     root.mainloop()
